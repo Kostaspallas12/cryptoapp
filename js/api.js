@@ -1,17 +1,11 @@
-/* ============================================
-   api.js — Κλήσεις API
-   CoinGecko + Alternative.me (Fear & Greed)
-   ============================================ */
-
 const API = {
 
   BASE_COINGECKO: 'https://api.coingecko.com/api/v3',
   BASE_FEAR_GREED: 'https://api.alternative.me/fng/',
-  CORS_PROXY: 'https://corsproxy.io/?',
+  API_KEY: 'CG-H2PTr61qHthtENQBpZmdNeTv',
 
-  /* Cache για να μην κάνουμε πολλά requests */
   cache: {},
-  CACHE_TTL: 10 * 60 * 1000, // 10 λεπτά
+  CACHE_TTL: 10 * 60 * 1000,
 
   isCached(key) {
     const entry = this.cache[key];
@@ -27,7 +21,6 @@ const API = {
     return this.cache[key]?.data;
   },
 
-  /* ── Φέρνει νομίσματα με pagination (max 250 ανά σελίδα) ── */
   async getTopCoins(total = 250) {
     const key = `top_coins_${total}`;
     if (this.isCached(key)) return this.getCache(key);
@@ -38,12 +31,16 @@ const API = {
       let allCoins = [];
 
       for (let page = 1; page <= pages; page++) {
-        const url = this.CORS_PROXY + encodeURIComponent(`${this.BASE_COINGECKO}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false&price_change_percentage=24h,7d`);
-        const res = await fetch(url);
+        const url = `${this.BASE_COINGECKO}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}&sparkline=false&price_change_percentage=24h,7d`;
+        const res = await fetch(url, {
+          headers: { 'x-cg-demo-api-key': this.API_KEY }
+        });
 
         if (res.status === 429) {
           await new Promise(r => setTimeout(r, 10000));
-          const retry = await fetch(url);
+          const retry = await fetch(url, {
+            headers: { 'x-cg-demo-api-key': this.API_KEY }
+          });
           if (!retry.ok) throw new Error(`Rate limited`);
           const data = await retry.json();
           allCoins = allCoins.concat(data);
@@ -65,14 +62,15 @@ const API = {
     }
   },
 
-  /* ── Φέρνει ιστορικές τιμές για τεχνική ανάλυση ── */
   async getCoinHistory(coinId, days = 30) {
     const key = `history_${coinId}_${days}`;
     if (this.isCached(key)) return this.getCache(key);
 
     try {
-      const url = this.CORS_PROXY + encodeURIComponent(`${this.BASE_COINGECKO}/coins/${coinId}/market_chart?vs_currency=usd&days=${days}&interval=daily`);
-      const res = await fetch(url);
+      const url = `${this.BASE_COINGECKO}/coins/${coinId}/market_chart?vs_currency=usd&days=${days}&interval=daily`;
+      const res = await fetch(url, {
+        headers: { 'x-cg-demo-api-key': this.API_KEY }
+      });
 
       if (!res.ok) throw new Error(`History error: ${res.status}`);
 
@@ -89,7 +87,6 @@ const API = {
     }
   },
 
-  /* ── Fear & Greed Index ── */
   async getFearGreedIndex() {
     const key = 'fear_greed';
     if (this.isCached(key)) return this.getCache(key);
@@ -112,15 +109,16 @@ const API = {
     }
   },
 
-  /* ── Global Market Data ── */
   async getGlobalData() {
     const key = 'global';
     if (this.isCached(key)) return this.getCache(key);
 
     try {
       await new Promise(r => setTimeout(r, 800));
-      const url = this.CORS_PROXY + encodeURIComponent(`${this.BASE_COINGECKO}/global`);
-      const res = await fetch(url);
+      const url = `${this.BASE_COINGECKO}/global`;
+      const res = await fetch(url, {
+        headers: { 'x-cg-demo-api-key': this.API_KEY }
+      });
       if (!res.ok) throw new Error(`Global error: ${res.status}`);
 
       const data = await res.json();
@@ -132,7 +130,6 @@ const API = {
     }
   },
 
-  /* ── Υπολογίζει global stats από τα coins αν το API αποτύχει ── */
   calculateGlobalFromCoins(coins) {
     if (!coins || coins.length === 0) return null;
     const totalMcap = coins.reduce((sum, c) => sum + (c.market_cap || 0), 0);
@@ -147,7 +144,6 @@ const API = {
     };
   },
 
-  /* ── Φέρνει και αναλύει ένα νόμισμα ── */
   async analyzeCoin(coin, fearGreedValue) {
     const history = await this.getCoinHistory(coin.id, 30);
 
@@ -180,7 +176,6 @@ const API = {
     });
   },
 
-  /* ── Φορμάτ αριθμών ── */
   formatPrice(price) {
     if (!price && price !== 0) return '--';
     if (price >= 1000) return '$' + price.toLocaleString('el-GR', { maximumFractionDigits: 2 });
