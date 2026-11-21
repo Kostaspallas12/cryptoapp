@@ -252,6 +252,23 @@ export const en = {
   'pf.investedLine': 'Invested',
   'pf.export': 'Export CSV',
 
+  'nav.news': 'News',
+  'news.title': 'Crypto news',
+  'news.subtitle': 'The latest headlines from the biggest crypto publications, updated every 30 minutes and linked to the coins they mention.',
+  'news.latest': 'Latest news',
+  'news.search': 'Search headlines…',
+  'news.allSources': 'All sources',
+  'news.myCoins': 'My watchlist & portfolio',
+  'news.empty': 'No articles match your filters.',
+  'news.english': 'Articles are in English and open on the original website.',
+  'news.updated': 'Updated {time}',
+  'news.about': 'News about {name}',
+  'news.noneForCoin': 'No recent news mention this coin.',
+  'news.more': 'Load more',
+  'news.error': 'News are temporarily unavailable.',
+  'news.trending': 'Most talked-about (24h)',
+  'news.mentions': '{n} articles',
+
   '404.title': 'Page not found',
   '404.back': 'Back to the market',
 };

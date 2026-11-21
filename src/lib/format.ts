@@ -74,3 +74,14 @@ export function safeUrl(u: string | undefined | null): string | undefined {
     return undefined;
   }
 }
+
+/** "5 minutes ago" / "πριν από 5 λεπτά" */
+export function fmtAgo(d: string | number | Date): string {
+  const sec = Math.round((new Date(d).getTime() - Date.now()) / 1000);
+  const rtf = new Intl.RelativeTimeFormat(currentLocale, { numeric: 'auto' });
+  const abs = Math.abs(sec);
+  if (abs < 60) return rtf.format(Math.round(sec), 'second');
+  if (abs < 3600) return rtf.format(Math.round(sec / 60), 'minute');
+  if (abs < 86400) return rtf.format(Math.round(sec / 3600), 'hour');
+  return rtf.format(Math.round(sec / 86400), 'day');
+}

@@ -8,7 +8,7 @@ import { useLive } from '../store/live';
 import { useSettings } from '../store/settings';
 import { useUser } from '../store/user';
 import {
-  BrandMark, GoogleLogo, IconBell, IconBook, IconJournal, IconChart, IconCloud, IconLogout, IconMoon, IconSearch, IconStar, IconSun, IconWallet,
+  BrandMark, GoogleLogo, IconBell, IconBook, IconJournal, IconNews, IconChart, IconCloud, IconLogout, IconMoon, IconSearch, IconStar, IconSun, IconWallet,
 } from './Icons';
 import { ErrorBoundary } from './ErrorBoundary';
 import { SearchPalette } from './SearchPalette';
@@ -127,11 +127,11 @@ export function Layout() {
 
   const links = [
     { to: '/', label: t('nav.market'), icon: <IconChart size={16} />, end: true },
+    { to: '/news', label: t('nav.news'), icon: <IconNews size={16} /> },
     { to: '/watchlist', label: t('nav.watchlist'), icon: <IconStar size={16} />, count: watchCount },
     { to: '/portfolio', label: t('nav.portfolio'), icon: <IconWallet size={16} /> },
     { to: '/alerts', label: t('nav.alerts'), icon: <IconBell size={16} />, count: activeAlerts },
     { to: '/journal', label: t('nav.journal'), icon: <IconJournal size={16} /> },
-    { to: '/learn', label: t('nav.learn'), icon: <IconBook size={16} /> },
   ];
 
   return (
@@ -158,6 +158,9 @@ export function Layout() {
               <span className="kbd">Ctrl K</span>
             </button>
             <LiveStatus />
+            <Link to="/learn" className="icon-btn" title={t('nav.learn')} aria-label={t('nav.learn')}>
+              <IconBook size={16} />
+            </Link>
             <button className="icon-btn lang-btn" onClick={() => setLang(lang === 'el' ? 'en' : 'el')} title={t('common.language')}>
               {lang === 'el' ? 'EN' : 'ΕΛ'}
             </button>
@@ -181,7 +184,9 @@ export function Layout() {
       <footer className="footer">
         <div className="container">
           <p>{t('footer.disclaimer')}</p>
-          <p>{t('footer.data')} · © {new Date().getFullYear()} CryptoIntel</p>
+          <p>
+            <Link to="/learn" style={{ color: 'var(--accent)' }}>{t('nav.learn')}</Link> · <Link to="/news" style={{ color: 'var(--accent)' }}>{t('nav.news')}</Link> · {t('footer.data')} · © {new Date().getFullYear()} CryptoIntel
+          </p>
         </div>
       </footer>
 

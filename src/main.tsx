@@ -14,6 +14,7 @@ import { CoinPage } from './pages/Coin';
 import { JournalPage } from './pages/Journal';
 import { LearnPage } from './pages/Learn';
 import { MarketPage } from './pages/Market';
+import { NewsPage } from './pages/News';
 import { PortfolioPage } from './pages/Portfolio';
 import { WatchlistPage } from './pages/Watchlist';
 import { startLive } from './store/live';
@@ -58,6 +59,7 @@ function App() {
           <Route path="watchlist" element={<WatchlistPage />} />
           <Route path="portfolio" element={<PortfolioPage />} />
           <Route path="alerts" element={<AlertsPage />} />
+          <Route path="news" element={<NewsPage />} />
           <Route path="journal" element={<JournalPage />} />
           <Route path="learn" element={<LearnPage />} />
           <Route path="*" element={<NotFound />} />

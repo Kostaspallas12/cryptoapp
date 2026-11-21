@@ -5,6 +5,8 @@ import { IconFlame, IconInfo, IconTrendDown, IconTrendUp } from '../components/I
 import { CoinImg, ErrorBox, Gauge, Pct, Skeleton, Sparkline } from '../components/ui';
 import { useFearGreed, useGlobal, useMarkets, usePairMap, useTrending } from '../hooks/data';
 import { useT } from '../i18n';
+import { NewsList } from '../components/NewsList';
+import { useNews } from '../hooks/useNews';
 import { fmtCompact, fmtNumber, fmtPrice } from '../lib/format';
 import { useLive } from '../store/live';
 import { useUser } from '../store/user';
@@ -142,6 +144,29 @@ function Heatmap({ coins, pairs }: { coins: MarketCoin[]; pairs: Record<string, 
   );
 }
 
+function LatestNews() {
+  const t = useT();
+  const { items, isLoading } = useNews();
+  if (!isLoading && !items.length) return null;
+  const half = 4;
+  return (
+    <div className="card">
+      <div className="card-title">
+        <span>📰 {t('news.latest')}</span>
+        <Link to="/news">{t('common.viewAll')} →</Link>
+      </div>
+      {isLoading ? (
+        <Skeleton h={220} />
+      ) : (
+        <div className="grid g-2" style={{ gap: 24 }}>
+          <NewsList items={items.slice(0, half)} compact />
+          <NewsList items={items.slice(half, half * 2)} compact />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function MarketPage() {
   const t = useT();
   const { data: coins, isLoading, isError, refetch } = useMarkets();
@@ -180,6 +205,10 @@ export function MarketPage() {
 
       <div className="section">
         {coins ? <Heatmap coins={coins} pairs={pairs} /> : <Skeleton h={260} r={16} />}
+      </div>
+
+      <div className="section">
+        <LatestNews />
       </div>
 
       <div className="section">

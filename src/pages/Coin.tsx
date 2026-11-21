@@ -3,6 +3,8 @@ import { Link, useParams } from 'react-router-dom';
 import { CandleChart, type ChartLine, type ChartMarker, type Lower, type Overlay } from '../components/CandleChart';
 import { AlertModal, TxModal, type CoinChoice } from '../components/Forms';
 import { NotesCard } from '../components/NotesCard';
+import { NewsList } from '../components/NewsList';
+import { useNews } from '../hooks/useNews';
 import { IconArrowLeft, IconBell, IconExternal, IconPlus, IconStar, IconTrash } from '../components/Icons';
 import { CoinImg, Gauge, LivePrice, Pct, RATING_COLOR, RatingBadge, RiskBadge, Seg, Skeleton } from '../components/ui';
 import { HttpError } from '../api/coingecko';
@@ -134,6 +136,21 @@ function TechnicalCard({ rating, interval, count }: { rating: Rating; interval: 
           <span className="row"><b className="num">{fmtPct(rating.volatility, 2, false)}</b><RiskBadge risk={rating.risk} /></span>
         </div>
       )}
+    </div>
+  );
+}
+
+function CoinNews({ id, name }: { id: string; name: string }) {
+  const t = useT();
+  const { items, isLoading } = useNews();
+  const mine = useMemo(() => items.filter((a) => a.coins.includes(id)).slice(0, 6), [items, id]);
+  return (
+    <div className="card">
+      <div className="card-title">
+        <span>📰 {t('news.about', { name })}</span>
+        <Link to="/news">{t('common.viewAll')} →</Link>
+      </div>
+      {isLoading ? <Skeleton h={160} /> : mine.length ? <NewsList items={mine} hideCoin={id} /> : <p className="faint small">{t('news.noneForCoin')}</p>}
     </div>
   );
 }
@@ -322,6 +339,8 @@ export function CoinPage() {
           </div>
 
           {rating && candles ? <TechnicalCard rating={rating} interval={interval} count={candles.length} /> : candlesLoading && <Skeleton h={300} r={16} />}
+
+          <CoinNews id={id} name={name} />
 
           {about && (
             <div className="card">

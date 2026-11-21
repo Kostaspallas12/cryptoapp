@@ -254,6 +254,23 @@ export const el: Dict = {
   'pf.investedLine': 'Επένδυση',
   'pf.export': 'Εξαγωγή CSV',
 
+  'nav.news': 'Ειδήσεις',
+  'news.title': 'Ειδήσεις crypto',
+  'news.subtitle': 'Τα τελευταία νέα από τα μεγαλύτερα crypto sites, ενημερώνονται κάθε 30 λεπτά και συνδέονται με τα νομίσματα που αναφέρουν.',
+  'news.latest': 'Τελευταίες ειδήσεις',
+  'news.search': 'Αναζήτηση στους τίτλους…',
+  'news.allSources': 'Όλες οι πηγές',
+  'news.myCoins': 'Το watchlist & portfolio μου',
+  'news.empty': 'Δεν βρέθηκαν άρθρα με αυτά τα φίλτρα.',
+  'news.english': 'Τα άρθρα είναι στα Αγγλικά και ανοίγουν στο αρχικό site.',
+  'news.updated': 'Ενημέρωση {time}',
+  'news.about': 'Ειδήσεις για το {name}',
+  'news.noneForCoin': 'Δεν υπάρχουν πρόσφατες ειδήσεις για αυτό το νόμισμα.',
+  'news.more': 'Περισσότερα',
+  'news.error': 'Οι ειδήσεις δεν είναι διαθέσιμες προσωρινά.',
+  'news.trending': 'Πιο πολυσυζητημένα (24h)',
+  'news.mentions': '{n} άρθρα',
+
   '404.title': 'Η σελίδα δεν βρέθηκε',
   '404.back': 'Πίσω στην αγορά',
 };
