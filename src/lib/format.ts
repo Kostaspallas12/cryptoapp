@@ -63,3 +63,14 @@ export const changeClass = (v: number | null | undefined) =>
   v === null || v === undefined || v === 0 ? 'flat' : v > 0 ? 'up' : 'down';
 
 export const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+
+/** Only allow http(s) links from third-party data (blocks javascript:, data:, etc.) */
+export function safeUrl(u: string | undefined | null): string | undefined {
+  if (!u) return undefined;
+  try {
+    const url = new URL(u);
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : undefined;
+  } catch {
+    return undefined;
+  }
+}

@@ -7,7 +7,7 @@ import { CoinImg, Gauge, LivePrice, Pct, RATING_COLOR, RatingBadge, RiskBadge, S
 import { HttpError } from '../api/coingecko';
 import { useBinanceSymbols, useCandles, useCoinDetail, useLivePrice, useMarkets, usePairMap } from '../hooks/data';
 import { useT } from '../i18n';
-import { fmtCompact, fmtDate, fmtNumber, fmtPct, fmtPrice } from '../lib/format';
+import { fmtCompact, fmtDate, fmtNumber, fmtPct, fmtPrice, safeUrl } from '../lib/format';
 import { holdingsFor } from '../lib/portfolio';
 import { computeRating, type IndicatorVote, type Rating } from '../lib/rating';
 import { useSettings } from '../store/settings';
@@ -368,21 +368,23 @@ export function CoinPage() {
             <div className="card">
               <div className="card-title">{t('coin.links')}</div>
               <div className="stack" style={{ gap: 2 }}>
-                {detail.links.homepage.filter(Boolean).slice(0, 1).map((u) => (
-                  <a key={u} className="menu-item" href={u} target="_blank" rel="noopener noreferrer"><IconExternal size={14} />{t('coin.website')}</a>
-                ))}
-                {detail.links.whitepaper && (
-                  <a className="menu-item" href={detail.links.whitepaper} target="_blank" rel="noopener noreferrer"><IconExternal size={14} />{t('coin.whitepaper')}</a>
-                )}
-                {detail.links.blockchain_site.filter(Boolean).slice(0, 1).map((u) => (
-                  <a key={u} className="menu-item" href={u} target="_blank" rel="noopener noreferrer"><IconExternal size={14} />{t('coin.explorer')}</a>
-                ))}
-                {detail.links.twitter_screen_name && (
-                  <a className="menu-item" href={`https://x.com/${detail.links.twitter_screen_name}`} target="_blank" rel="noopener noreferrer"><IconExternal size={14} />X / Twitter</a>
-                )}
-                {detail.links.subreddit_url && (
-                  <a className="menu-item" href={detail.links.subreddit_url} target="_blank" rel="noopener noreferrer"><IconExternal size={14} />Reddit</a>
-                )}
+                {[
+                  { url: detail.links.homepage.find(Boolean), label: t('coin.website') },
+                  { url: detail.links.whitepaper, label: t('coin.whitepaper') },
+                  { url: detail.links.blockchain_site.find(Boolean), label: t('coin.explorer') },
+                  {
+                    url: detail.links.twitter_screen_name && /^\w{1,30}$/.test(detail.links.twitter_screen_name) ? `https://x.com/${detail.links.twitter_screen_name}` : undefined,
+                    label: 'X / Twitter',
+                  },
+                  { url: detail.links.subreddit_url, label: 'Reddit' },
+                ]
+                  .map((l) => ({ ...l, url: safeUrl(l.url) }))
+                  .filter((l) => l.url)
+                  .map((l) => (
+                    <a key={l.label} className="menu-item" href={l.url} target="_blank" rel="noopener noreferrer">
+                      <IconExternal size={14} />{l.label}
+                    </a>
+                  ))}
               </div>
             </div>
           )}

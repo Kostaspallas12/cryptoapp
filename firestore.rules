@@ -1,0 +1,37 @@
+rules_version = '2';
+
+// CryptoIntel security rules
+// - Each signed-in user can read/write ONLY their own document: users/{their uid}
+// - Nobody can list all users or touch any other collection
+// - Writes are shape- and size-checked so a user cannot abuse storage
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{uid} {
+      allow get: if isOwner(uid);
+      allow list: if false;
+      allow create, update: if isOwner(uid) && validUserDoc(request.resource.data);
+      allow delete: if isOwner(uid);
+    }
+
+    // Everything else is closed
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function validUserDoc(d) {
+      // v1 fields (portfolio, alerts) may still exist on old documents
+      return d.keys().hasOnly(['v2', 'updatedAt', 'portfolio', 'alerts'])
+        && d.v2 is map
+        && d.v2.keys().hasOnly(['watchlist', 'transactions', 'alerts'])
+        && d.v2.watchlist is list && d.v2.watchlist.size() <= 500
+        && d.v2.transactions is list && d.v2.transactions.size() <= 5000
+        && d.v2.alerts is list && d.v2.alerts.size() <= 500
+        && d.updatedAt is string && d.updatedAt.size() <= 40;
+    }
+  }
+}

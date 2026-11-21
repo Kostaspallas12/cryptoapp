@@ -40,6 +40,10 @@ export interface UserData {
 
 interface UserState extends UserData {
   updatedAt: number;
+  /** uid of the account this local data belongs to (null = not linked to any account yet) */
+  owner: string | null;
+  setOwner: (uid: string | null) => void;
+  resetLocal: () => void;
   toggleWatch: (coinId: string) => void;
   addTransaction: (t: Omit<Transaction, 'id'>) => void;
   removeTransaction: (id: string) => void;
@@ -59,6 +63,9 @@ export const useUser = create<UserState>()(
       transactions: [],
       alerts: [],
       updatedAt: 0,
+      owner: null,
+      setOwner: (owner) => set({ owner }),
+      resetLocal: () => set({ watchlist: [], transactions: [], alerts: [], owner: null, updatedAt: 0 }),
       toggleWatch: (coinId) =>
         set((s) => ({
           watchlist: s.watchlist.includes(coinId) ? s.watchlist.filter((x) => x !== coinId) : [...s.watchlist, coinId],
@@ -144,6 +151,9 @@ function migrateLegacyLocal(state: UserState) {
         alerts: [...state.alerts, ...legacy.alerts],
       });
     }
+    // Import once: remove v1 keys so they are never re-imported (e.g. after sign-out)
+    localStorage.removeItem('cryptointel_portfolio');
+    localStorage.removeItem('cryptointel_alerts');
   } catch {
     /* ignore corrupted legacy data */
   }

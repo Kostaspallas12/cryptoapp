@@ -14,6 +14,7 @@ export const el: Dict = {
   'common.signOut': 'Αποσύνδεση',
   'common.syncing': 'Συγχρονισμός…',
   'common.synced': 'Συγχρονισμένο με τον λογαριασμό σου',
+  'common.syncFailed': 'Ο συγχρονισμός δεν είναι διαθέσιμος — τα δεδομένα σου αποθηκεύονται μόνο σε αυτή τη συσκευή.',
   'common.localOnly': 'Αποθηκεύεται σε αυτή τη συσκευή. Συνδέσου για συγχρονισμό παντού.',
   'common.live': 'Live',
   'common.connecting': 'Σύνδεση…',

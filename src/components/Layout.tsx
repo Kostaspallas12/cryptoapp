@@ -27,7 +27,7 @@ function LiveStatus() {
 
 function UserMenu() {
   const t = useT();
-  const { user, syncing } = useAuth();
+  const { user, sync } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -54,7 +54,10 @@ function UserMenu() {
             <div className="bold ellipsis">{user.displayName}</div>
             <div className="faint small ellipsis">{user.email}</div>
             <div className="row small muted" style={{ marginTop: 8 }}>
-              <IconCloud size={14} /> {syncing ? t('common.syncing') : t('common.synced')}
+              <IconCloud size={14} />{' '}
+              <span className={sync === 'error' ? 'down' : ''}>
+                {sync === 'syncing' ? t('common.syncing') : sync === 'synced' ? t('common.synced') : t('common.syncFailed')}
+              </span>
             </div>
           </div>
           <button className="menu-item" onClick={() => { logOut(); setOpen(false); }}>

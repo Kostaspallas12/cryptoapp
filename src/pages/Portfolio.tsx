@@ -38,6 +38,7 @@ export function PortfolioPage() {
   const t = useT();
   const nav = useNavigate();
   const user = useAuth((s) => s.user);
+  const sync = useAuth((s) => s.sync);
   const txs = useUser((s) => s.transactions);
   const removeTx = useUser((s) => s.removeTransaction);
   const [modal, setModal] = useState(false);
@@ -90,9 +91,9 @@ export function PortfolioPage() {
         </button>
       </div>
 
-      {!user && (
+      {(!user || sync === 'error') && (
         <div className="notice" style={{ marginBottom: 16 }}>
-          <IconCloud size={16} /> {t('common.localOnly')}
+          <IconCloud size={16} /> {user ? t('common.syncFailed') : t('common.localOnly')}
         </div>
       )}
 

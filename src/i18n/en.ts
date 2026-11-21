@@ -12,6 +12,7 @@ export const en = {
   'common.signOut': 'Sign out',
   'common.syncing': 'Syncing…',
   'common.synced': 'Synced to your account',
+  'common.syncFailed': 'Cloud sync unavailable — your data is saved on this device only.',
   'common.localOnly': 'Saved on this device. Sign in to sync across devices.',
   'common.live': 'Live',
   'common.connecting': 'Connecting…',
