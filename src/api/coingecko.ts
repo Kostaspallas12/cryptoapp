@@ -74,7 +74,52 @@ async function cg<T>(path: string, ttl = 60_000): Promise<T> {
   return p;
 }
 
+/* ── Shared snapshot ──────────────────────────────────────────────
+   A GitHub Action refreshes markets/global/trending every 10 minutes
+   (scripts/fetch-market.mjs). Everyone reads that one file, so CoinGecko
+   is only called directly when the snapshot is stale or unreachable. */
+export const SNAPSHOT_URL = 'https://raw.githubusercontent.com/Kostaspallas12/cryptoapp/market-data/market.json';
+const SNAPSHOT_FRESH = 20 * 60_000;
+
+interface Snapshot {
+  updatedAt: string;
+  markets: MarketCoin[];
+  global: GlobalData;
+  trending: TrendingCoin[];
+}
+
+let snapPromise: Promise<Snapshot | null> | null = null;
+let snapAt = 0;
+
+/** Latest snapshot (any age) or null; one request shared by all callers for 60s */
+function loadSnapshot(): Promise<Snapshot | null> {
+  if (snapPromise && Date.now() - snapAt < 60_000) return snapPromise;
+  snapAt = Date.now();
+  snapPromise = fetch(SNAPSHOT_URL, { cache: 'no-cache' })
+    .then((r) => (r.ok ? (r.json() as Promise<Snapshot>) : null))
+    .then((j) => (j && Array.isArray(j.markets) && j.markets.length > 100 ? j : null))
+    .catch(() => null);
+  return snapPromise;
+}
+
+const isFresh = (s: Snapshot | null): s is Snapshot => !!s && Date.now() - Date.parse(s.updatedAt) < SNAPSHOT_FRESH;
+
+/** Fresh snapshot → use it. Otherwise call CoinGecko; if that fails too, fall back to the stale snapshot. */
+async function viaSnapshot<T>(pick: (s: Snapshot) => T, direct: () => Promise<T>): Promise<T> {
+  const snap = await loadSnapshot();
+  if (isFresh(snap)) return pick(snap);
+  try {
+    return await direct();
+  } catch (e) {
+    if (snap) return pick(snap);
+    throw e;
+  }
+}
+
 export const fetchMarkets = (page = 1, perPage = 250) =>
+  page === 1 && perPage === 250 ? viaSnapshot((s) => s.markets, () => fetchMarketsDirect(page, perPage)) : fetchMarketsDirect(page, perPage);
+
+const fetchMarketsDirect = (page: number, perPage: number) =>
   cg<MarketCoin[]>(
     `/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${perPage}&page=${page}` +
       `&sparkline=true&price_change_percentage=1h,24h,7d`,
@@ -87,7 +132,8 @@ export const fetchMarketsByIds = (ids: string[]) =>
       `&sparkline=true&price_change_percentage=1h,24h,7d`,
   );
 
-export const fetchGlobal = () => cg<{ data: GlobalData }>('/global', 4 * 60_000).then((r) => r.data);
+export const fetchGlobal = () =>
+  viaSnapshot((s) => s.global, () => cg<{ data: GlobalData }>('/global', 4 * 60_000).then((r) => r.data));
 
 export const fetchCoinDetail = (id: string) =>
   cg<CoinDetail>(
@@ -96,7 +142,9 @@ export const fetchCoinDetail = (id: string) =>
     5 * 60_000,
   );
 
-export async function fetchTrending(): Promise<TrendingCoin[]> {
+export const fetchTrending = () => viaSnapshot((s) => s.trending, fetchTrendingDirect);
+
+async function fetchTrendingDirect(): Promise<TrendingCoin[]> {
   const r = await cg<{
     coins: {
       item: {

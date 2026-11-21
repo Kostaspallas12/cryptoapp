@@ -1,0 +1,47 @@
+# Shared CoinGecko snapshot (top 250 markets, global stats, trending) every 10 minutes,
+# published as market.json on the `market-data` branch. Every visitor reads this file
+# instead of calling CoinGecko, so the site stays far below the API rate limit.
+# Optional: add a repository secret COINGECKO_API_KEY (demo key) for higher limits.
+name: Update market snapshot
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['scripts/fetch-market.mjs', '.github/workflows/market.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: market
+  cancel-in-progress: true
+
+jobs:
+  market:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch CoinGecko snapshot
+        env:
+          COINGECKO_API_KEY: ${{ secrets.COINGECKO_API_KEY }}
+        run: node scripts/fetch-market.mjs > "$RUNNER_TEMP/market.json"
+      - name: Publish to market-data branch (single commit, no history growth)
+        run: |
+          cd "$RUNNER_TEMP"
+          mkdir out && cd out
+          git init -q -b market-data
+          cp ../market.json .
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add market.json
+          git commit -q -m "market: $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -q --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" market-data
