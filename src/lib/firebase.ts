@@ -2,7 +2,7 @@
    The Firebase web config is public by design (security comes from Firestore rules). */
 import { initializeApp } from 'firebase/app';
 import { GoogleAuthProvider, getAuth, onAuthStateChanged, signInWithPopup, signOut, type User } from 'firebase/auth';
-import { doc, getDoc, getFirestore, setDoc } from 'firebase/firestore';
+import { doc, getDoc, initializeFirestore, setDoc } from 'firebase/firestore';
 import { create } from 'zustand';
 import { convertLegacy, pickData, useUser, type UserData } from '../store/user';
 
@@ -15,7 +15,8 @@ const app = initializeApp({
   appId: '1:815872629847:web:b9f486897ba756e431d712',
 });
 const auth = getAuth(app);
-const db = getFirestore(app);
+// ignoreUndefinedProperties: optional fields (e.g. a transaction without a note) must not break saving
+const db = initializeFirestore(app, { ignoreUndefinedProperties: true });
 
 export type SyncState = 'idle' | 'syncing' | 'synced' | 'error';
 
@@ -53,10 +54,10 @@ async function pullFromCloud(user: User) {
   const store = useUser.getState();
   // Local data that belongs to a *different* account must never be merged into this one
   const foreign = store.owner !== null && store.owner !== user.uid;
-  const local: UserData = foreign ? { watchlist: [], transactions: [], alerts: [] } : pickData(store);
+  const local: UserData = foreign ? { watchlist: [], transactions: [], alerts: [], notes: [] } : pickData(store);
 
   const snap = await getDoc(doc(db, 'users', user.uid));
-  let cloud: UserData = { watchlist: [], transactions: [], alerts: [] };
+  let cloud: UserData = { watchlist: [], transactions: [], alerts: [], notes: [] };
   if (snap.exists()) {
     const d = snap.data();
     // First login after the redesign: convert the old cloud format
@@ -67,6 +68,7 @@ async function pullFromCloud(user: User) {
     watchlist: [...new Set([...arr<string>(cloud.watchlist), ...local.watchlist])].filter((x) => typeof x === 'string'),
     transactions: mergeById(local.transactions, arr(cloud.transactions)),
     alerts: mergeById(local.alerts, arr(cloud.alerts)),
+    notes: mergeById(local.notes, arr(cloud.notes)),
   });
   store.setOwner(user.uid);
   await save(user);

@@ -11,6 +11,7 @@ import { initAuth } from './lib/firebase';
 import { setFormatLocale } from './lib/format';
 import { AlertsPage } from './pages/Alerts';
 import { CoinPage } from './pages/Coin';
+import { JournalPage } from './pages/Journal';
 import { LearnPage } from './pages/Learn';
 import { MarketPage } from './pages/Market';
 import { PortfolioPage } from './pages/Portfolio';
@@ -57,6 +58,7 @@ function App() {
           <Route path="watchlist" element={<WatchlistPage />} />
           <Route path="portfolio" element={<PortfolioPage />} />
           <Route path="alerts" element={<AlertsPage />} />
+          <Route path="journal" element={<JournalPage />} />
           <Route path="learn" element={<LearnPage />} />
           <Route path="*" element={<NotFound />} />
         </Route>

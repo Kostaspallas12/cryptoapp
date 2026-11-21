@@ -20,6 +20,7 @@ const EL: Topic[] = [
   { icon: '🧱', title: 'Στήριξη & αντίσταση', body: 'Στήριξη: επίπεδο όπου η τιμή συνήθως σταματά να πέφτει. Αντίσταση: επίπεδο όπου συνήθως σταματά να ανεβαίνει. Στη σελίδα κάθε νομίσματος θα βρεις τα επίπεδα S1/S2 και R1/R2.' },
   { icon: '😨', title: 'Fear & Greed', body: 'Ένας δείκτης 0–100 για το συναίσθημα της αγοράς. Ο ακραίος φόβος συχνά συμπίπτει με χαμηλά, η ακραία απληστία με κορυφές.', tip: '«Να είσαι φοβισμένος όταν οι άλλοι είναι άπληστοι, και άπληστος όταν οι άλλοι φοβούνται.»' },
   { icon: '🛡️', title: 'Ρίσκο & μεταβλητότητα', body: 'Το ρίσκο υπολογίζεται από το πόσο κινείται η τιμή ανά κερί (ATR) και το μέγεθος του νομίσματος. Υψηλό ρίσκο = μεγάλες, γρήγορες κινήσεις και προς τις δύο κατευθύνσεις.' },
+  { icon: '📝', title: 'Ημερολόγιο & σημειώσεις', body: 'Πριν αγοράσεις ή πουλήσεις, γράψε μια σημείωση: τι βλέπεις και τι περιμένεις (ανοδικό ή πτωτικό). Το CryptoIntel κρατάει την τιμή εκείνης της στιγμής και σου δείχνει αργότερα αν είχες δίκιο. Οι σημειώσεις και οι συναλλαγές σου εμφανίζονται και πάνω στο γράφημα.', tip: 'Οι επαγγελματίες traders κρατούν πάντα ημερολόγιο — είναι ο πιο γρήγορος τρόπος να βρεις τι δουλεύει για σένα και τι όχι.' },
   { icon: '🔔', title: 'Alerts & Portfolio', body: 'Βάλε alerts για να μη χρειάζεται να κοιτάς συνέχεια την οθόνη, και κατέγραψε τις αγορές/πωλήσεις σου στο Portfolio για να βλέπεις το πραγματικό σου κέρδος ή ζημία. Συνδέσου με Google για να τα έχεις σε όλες τις συσκευές.' },
 ];
 
@@ -35,6 +36,7 @@ const EN: Topic[] = [
   { icon: '🧱', title: 'Support & resistance', body: 'Support: a level where price tends to stop falling. Resistance: a level where it tends to stop rising. Each coin page shows S1/S2 and R1/R2 levels.' },
   { icon: '😨', title: 'Fear & Greed', body: 'A 0–100 index of market emotion. Extreme fear often coincides with bottoms, extreme greed with tops.', tip: '"Be fearful when others are greedy, and greedy when others are fearful."' },
   { icon: '🛡️', title: 'Risk & volatility', body: 'Risk is based on how much price moves per candle (ATR) and on coin size. High risk = big, fast moves in both directions.' },
+  { icon: '📝', title: 'Journal & notes', body: 'Before you buy or sell, write a note: what you see and what you expect (bullish or bearish). CryptoIntel saves the price at that moment and later shows whether you were right. Your notes and trades also appear on the chart.', tip: 'Professional traders always keep a journal — it is the fastest way to learn what works for you and what does not.' },
   { icon: '🔔', title: 'Alerts & portfolio', body: 'Set alerts so you do not have to watch the screen, and log your buys and sells in Portfolio to see your real profit or loss. Sign in with Google to keep them on every device.' },
 ];
 

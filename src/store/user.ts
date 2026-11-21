@@ -32,10 +32,22 @@ export interface PriceAlert extends CoinRef {
   triggeredPrice?: number;
 }
 
+export type Sentiment = 'bullish' | 'bearish' | 'neutral';
+
+/** Journal entry about a coin. The price is captured so we can later show how the idea played out. */
+export interface Note extends CoinRef {
+  id: string;
+  text: string;
+  sentiment: Sentiment;
+  price: number;
+  createdAt: string;
+}
+
 export interface UserData {
   watchlist: string[];
   transactions: Transaction[];
   alerts: PriceAlert[];
+  notes: Note[];
 }
 
 interface UserState extends UserData {
@@ -51,6 +63,8 @@ interface UserState extends UserData {
   removeAlert: (id: string) => void;
   resetAlert: (id: string) => void;
   markTriggered: (id: string, price: number) => void;
+  addNote: (n: Omit<Note, 'id' | 'createdAt'>) => void;
+  removeNote: (id: string) => void;
   replaceAll: (d: UserData) => void;
 }
 
@@ -62,10 +76,11 @@ export const useUser = create<UserState>()(
       watchlist: ['bitcoin', 'ethereum', 'solana'],
       transactions: [],
       alerts: [],
+      notes: [],
       updatedAt: 0,
       owner: null,
       setOwner: (owner) => set({ owner }),
-      resetLocal: () => set({ watchlist: [], transactions: [], alerts: [], owner: null, updatedAt: 0 }),
+      resetLocal: () => set({ watchlist: [], transactions: [], alerts: [], notes: [], owner: null, updatedAt: 0 }),
       toggleWatch: (coinId) =>
         set((s) => ({
           watchlist: s.watchlist.includes(coinId) ? s.watchlist.filter((x) => x !== coinId) : [...s.watchlist, coinId],
@@ -81,7 +96,11 @@ export const useUser = create<UserState>()(
       removeAlert: (id) => set((s) => ({ alerts: s.alerts.filter((a) => a.id !== id), ...touch() })),
       resetAlert: (id) =>
         set((s) => ({
-          alerts: s.alerts.map((a) => (a.id === id ? { ...a, triggered: false, triggeredAt: undefined, triggeredPrice: undefined } : a)),
+          alerts: s.alerts.map((a) => {
+            if (a.id !== id) return a;
+            const { triggeredAt: _t, triggeredPrice: _p, ...rest } = a;
+            return { ...rest, triggered: false };
+          }),
           ...touch(),
         })),
       markTriggered: (id, price) =>
@@ -91,11 +110,14 @@ export const useUser = create<UserState>()(
           ),
           ...touch(),
         })),
-      replaceAll: (d) => set({ watchlist: d.watchlist, transactions: d.transactions, alerts: d.alerts, updatedAt: Date.now() }),
+      addNote: (n) => set((s) => ({ notes: [...s.notes, { ...n, id: uid(), createdAt: new Date().toISOString() }], ...touch() })),
+      removeNote: (id) => set((s) => ({ notes: s.notes.filter((n) => n.id !== id), ...touch() })),
+      replaceAll: (d) => set({ watchlist: d.watchlist, transactions: d.transactions, alerts: d.alerts, notes: d.notes ?? [], updatedAt: Date.now() }),
     }),
     {
       name: 'ci-user-v2',
-      version: 2,
+      version: 3,
+      migrate: (persisted) => ({ notes: [], ...(persisted as object) }) as unknown as UserState,
       onRehydrateStorage: () => (state) => {
         if (state && state.updatedAt === 0) migrateLegacyLocal(state);
       },
@@ -107,6 +129,7 @@ export const pickData = (s: UserData): UserData => ({
   watchlist: s.watchlist,
   transactions: s.transactions,
   alerts: s.alerts,
+  notes: s.notes,
 });
 
 /* ── Migration from v1 (old vanilla-JS site) ── */
@@ -135,7 +158,7 @@ export function convertLegacy(portfolio?: LegacyPortfolio | null, alerts?: Legac
     direction: a.type, target: Number(a.targetPrice), priceAtCreation: Number(a.currentPriceAtCreation ?? 0),
     createdAt: a.createdAt, triggered: !!a.triggered,
   }));
-  return { watchlist: [], transactions, alerts: al };
+  return { watchlist: [], transactions, alerts: al, notes: [] };
 }
 
 function migrateLegacyLocal(state: UserState) {
@@ -149,6 +172,7 @@ function migrateLegacyLocal(state: UserState) {
         watchlist: state.watchlist,
         transactions: [...state.transactions, ...legacy.transactions],
         alerts: [...state.alerts, ...legacy.alerts],
+        notes: state.notes ?? [],
       });
     }
     // Import once: remove v1 keys so they are never re-imported (e.g. after sign-out)

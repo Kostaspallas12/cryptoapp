@@ -140,7 +140,8 @@ p { margin: 0; }
   transition: border-color .15s;
 }
 .search-trigger:hover { border-color: var(--border-strong); }
-.kbd { font-family: var(--mono); font-size: 11px; padding: 1px 6px; border: 1px solid var(--border-strong); border-radius: 5px; color: var(--text-3); margin-left: auto; }
+.search-trigger .label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kbd { white-space: nowrap; font-family: var(--mono); font-size: 11px; padding: 1px 6px; border: 1px solid var(--border-strong); border-radius: 5px; color: var(--text-3); margin-left: auto; }
 
 .icon-btn {
   width: 38px; height: 38px; display: grid; place-items: center; border-radius: var(--r-sm);
@@ -416,6 +417,10 @@ p { margin: 0; }
 .learn-ico { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-size: 16px; }
 
 /* ─────────────────────────  Responsive  ───────────────────────── */
+@media (max-width: 1440px) {
+  .search-trigger { min-width: 0; padding: 0; width: 38px; justify-content: center; }
+  .search-trigger .label, .search-trigger .kbd { display: none; }
+}
 @media (max-width: 1180px) {
   .hero { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .coin-layout { grid-template-columns: minmax(0, 1fr); }
@@ -453,3 +458,24 @@ p { margin: 0; }
   .heat.big { grid-column: span 1; grid-row: span 1; aspect-ratio: 1.25; }
   .heat.big .s { font-size: 13px; }
 }
+
+/* ─────────────────────────  Phase 2: notes, journal, portfolio history  ───────────────────────── */
+.note { padding: 12px; border-radius: var(--r); background: var(--surface-2); }
+.note-text { margin: 6px 0 8px; white-space: pre-wrap; word-break: break-word; line-height: 1.55; }
+
+.timeline { position: relative; display: flex; flex-direction: column; gap: 12px; }
+.tl-day { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; margin: 10px 0 0; }
+.tl-item { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; align-items: start; }
+.tl-ico { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 14px; font-weight: 800; }
+.tl-ico.buy { background: var(--up-soft); color: var(--up); }
+.tl-ico.sell { background: var(--down-soft); color: var(--down); }
+.tl-ico.bullish { background: var(--up-soft); color: var(--up); }
+.tl-ico.bearish { background: var(--down-soft); color: var(--down); }
+.tl-ico.neutral { background: var(--surface-3); color: var(--text-2); }
+.tl-body { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 14px; }
+.tl-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tl-head a:hover { color: var(--accent); }
+
+.history-box { position: relative; height: 300px; }
+.legend-inline { display: flex; gap: 14px; font-size: 12px; color: var(--text-2); }
+.legend-inline i { display: inline-block; width: 10px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }

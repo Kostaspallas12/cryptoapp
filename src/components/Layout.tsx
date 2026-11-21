@@ -8,7 +8,7 @@ import { useLive } from '../store/live';
 import { useSettings } from '../store/settings';
 import { useUser } from '../store/user';
 import {
-  BrandMark, GoogleLogo, IconBell, IconBook, IconChart, IconCloud, IconLogout, IconMoon, IconSearch, IconStar, IconSun, IconWallet,
+  BrandMark, GoogleLogo, IconBell, IconBook, IconJournal, IconChart, IconCloud, IconLogout, IconMoon, IconSearch, IconStar, IconSun, IconWallet,
 } from './Icons';
 import { ErrorBoundary } from './ErrorBoundary';
 import { SearchPalette } from './SearchPalette';
@@ -130,6 +130,7 @@ export function Layout() {
     { to: '/watchlist', label: t('nav.watchlist'), icon: <IconStar size={16} />, count: watchCount },
     { to: '/portfolio', label: t('nav.portfolio'), icon: <IconWallet size={16} /> },
     { to: '/alerts', label: t('nav.alerts'), icon: <IconBell size={16} />, count: activeAlerts },
+    { to: '/journal', label: t('nav.journal'), icon: <IconJournal size={16} /> },
     { to: '/learn', label: t('nav.learn'), icon: <IconBook size={16} /> },
   ];
 

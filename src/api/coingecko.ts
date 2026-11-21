@@ -130,6 +130,15 @@ export async function fetchCgOhlc(id: string, days: number): Promise<Candle[]> {
   return rows.map(([t, o, h, l, c]) => ({ time: Math.floor(t / 1000), open: o, high: h, low: l, close: c, volume: 0 }));
 }
 
+/** Daily closes for coins that are not on Binance: [timestamp ms, price][] */
+export async function fetchCgDailyCloses(id: string, days: number): Promise<{ time: number; close: number }[]> {
+  const r = await cg<{ prices: [number, number][] }>(
+    `/coins/${encodeURIComponent(id)}/market_chart?vs_currency=usd&days=${days}&interval=daily`,
+    60 * 60_000,
+  );
+  return r.prices.map(([t, p]) => ({ time: Math.floor(t / 1000), close: p }));
+}
+
 export interface SearchHit {
   id: string;
   name: string;

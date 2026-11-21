@@ -217,6 +217,41 @@ export const en = {
   'footer.disclaimer': 'CryptoIntel provides information for educational purposes only. Nothing here is financial advice. Crypto is highly volatile — always do your own research and never invest more than you can afford to lose.',
   'footer.data': 'Market data: CoinGecko, Binance, alternative.me',
 
+  'nav.journal': 'Journal',
+
+  'notes.title': 'Notes',
+  'notes.hint': 'Write down why you are watching or trading this coin. We save the price so you can see later if you were right.',
+  'notes.placeholder': 'e.g. RSI below 30 and price at support — expecting a bounce',
+  'notes.add': 'Save note',
+  'notes.bullish': 'Bullish',
+  'notes.bearish': 'Bearish',
+  'notes.neutral': 'Neutral',
+  'notes.empty': 'No notes yet.',
+  'notes.at': 'Price then',
+  'notes.since': 'Since then',
+  'notes.right': 'Played out',
+  'notes.wrong': 'Not yet',
+
+  'journal.title': 'Trading journal',
+  'journal.subtitle': 'All your notes and trades in one timeline — the best way to learn from your own decisions.',
+  'journal.all': 'All',
+  'journal.notes': 'Notes',
+  'journal.trades': 'Trades',
+  'journal.allCoins': 'All coins',
+  'journal.empty': 'Your journal is empty',
+  'journal.emptyHint': 'Add a note from any coin page, or log a trade in your portfolio.',
+  'journal.accuracy': 'Idea accuracy',
+  'journal.accuracyHint': 'Bullish notes where the price went up, and bearish notes where it went down.',
+  'journal.entries': 'Entries',
+
+  'chart.markers': 'My trades & notes',
+
+  'pf.history': 'Value over time',
+  'pf.historyHint': 'Daily value of your holdings compared with what you invested.',
+  'pf.valueLine': 'Portfolio value',
+  'pf.investedLine': 'Invested',
+  'pf.export': 'Export CSV',
+
   '404.title': 'Page not found',
   '404.back': 'Back to the market',
 };

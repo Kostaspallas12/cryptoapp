@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TxModal } from '../components/Forms';
+import { PortfolioHistory } from '../components/PortfolioHistory';
+import { downloadFile, transactionsCsv } from '../lib/csv';
+import { useSettings } from '../store/settings';
 import { IconCloud, IconPlus, IconTrash, IconWallet } from '../components/Icons';
 import { CoinImg, Pct } from '../components/ui';
 import { usePairMap } from '../hooks/data';
@@ -42,6 +45,7 @@ export function PortfolioPage() {
   const txs = useUser((s) => s.transactions);
   const removeTx = useUser((s) => s.removeTransaction);
   const [modal, setModal] = useState(false);
+  const lang = useSettings((s) => s.lang);
   const holdings = useMemo(() => computeHoldings(txs), [txs]);
   const ids = useMemo(() => holdings.map((h) => h.coinId), [holdings]);
   const { coins } = useCoinsByIds(ids);
@@ -86,9 +90,16 @@ export function PortfolioPage() {
           <h1 className="page-title">{t('pf.title')}</h1>
           <p className="page-sub">{t('pf.subtitle')}</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setModal(true)}>
-          <IconPlus size={15} /> {t('pf.addTx')}
-        </button>
+        <div className="row-wrap">
+          {txs.length > 0 && (
+            <button className="btn" onClick={() => downloadFile(`cryptointel-transactions-${new Date().toISOString().slice(0, 10)}.csv`, transactionsCsv(txs, lang))}>
+              ⬇ {t('pf.export')}
+            </button>
+          )}
+          <button className="btn btn-primary" onClick={() => setModal(true)}>
+            <IconPlus size={15} /> {t('pf.addTx')}
+          </button>
+        </div>
       </div>
 
       {(!user || sync === 'error') && (
@@ -125,6 +136,10 @@ export function PortfolioPage() {
               <div className="stat-label">{t('pf.invested')}</div>
               <div className="stat-value">{fmtPrice(totals.cost)}</div>
             </div>
+          </div>
+
+          <div className="section">
+            <PortfolioHistory txs={txs} />
           </div>
 
           <div className="coin-layout">

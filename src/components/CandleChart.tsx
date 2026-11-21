@@ -27,8 +27,23 @@ function toLine(candles: Candle[], s: Series) {
   return s.map((v, i) => (v === null ? { time: candles[i].time as UTCTimestamp } : { time: candles[i].time as UTCTimestamp, value: v })) as { time: Time; value: number }[];
 }
 
+export interface ChartMarker {
+  time: number; // seconds
+  kind: 'buy' | 'sell' | 'bullish' | 'bearish' | 'neutral';
+  text: string;
+}
+export interface ChartLine {
+  price: number;
+  color: string;
+  title: string;
+}
+
 interface Props {
   candles: Candle[];
+  /** User trades/notes drawn on the candles (must be memoized by the caller) */
+  markers?: ChartMarker[];
+  /** Horizontal levels such as alerts or the average buy price (memoized) */
+  lines?: ChartLine[];
   pair?: string;
   interval: Interval;
   overlays: Overlay[];
@@ -36,7 +51,7 @@ interface Props {
   onLiveCandle?: (c: Candle) => void;
 }
 
-export function CandleChart({ candles, pair, interval, overlays, lower, onLiveCandle }: Props) {
+export function CandleChart({ candles, markers, lines, pair, interval, overlays, lower, onLiveCandle }: Props) {
   const t = useT();
   const theme = useSettings((s) => s.theme);
   const mainRef = useRef<HTMLDivElement>(null);
@@ -138,6 +153,48 @@ export function CandleChart({ candles, pair, interval, overlays, lower, onLiveCa
       volRef.current = null;
     };
   }, [candles, overlays, lower, theme, interval, hasVolume]);
+
+  /* ── User markers & price lines (separate effect: no chart rebuild) ── */
+  useEffect(() => {
+    const cs = candleRef.current;
+    if (!cs || !candles.length) return;
+    const first = candles[0].time;
+    // Snap each marker to the candle that contains it (markers must sit on an existing bar)
+    const snap = (t: number) => {
+      if (t < first) return null;
+      let lo = 0;
+      let hi = candles.length - 1;
+      while (lo < hi) {
+        const mid = (lo + hi + 1) >> 1;
+        if (candles[mid].time <= t) lo = mid;
+        else hi = mid - 1;
+      }
+      return candles[lo].time;
+    };
+    const style = {
+      buy: { position: 'belowBar', color: cssVar('--up'), shape: 'arrowUp' },
+      sell: { position: 'aboveBar', color: cssVar('--down'), shape: 'arrowDown' },
+      bullish: { position: 'belowBar', color: '#7c8cff', shape: 'circle' },
+      bearish: { position: 'aboveBar', color: '#7c8cff', shape: 'circle' },
+      neutral: { position: 'aboveBar', color: '#7c8cff', shape: 'circle' },
+    } as const;
+    const ms = (markers ?? [])
+      .map((m) => ({ m, time: snap(m.time) }))
+      .filter((x): x is { m: ChartMarker; time: number } => x.time !== null)
+      .sort((a, b) => a.time - b.time)
+      .map(({ m, time }) => ({ time: time as UTCTimestamp, text: m.text, ...style[m.kind] }));
+    cs.setMarkers(ms);
+    const created = (lines ?? []).map((l) =>
+      cs.createPriceLine({ price: l.price, color: l.color, lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: l.title }),
+    );
+    return () => {
+      // If the chart was already torn down (page change / rebuild), touching the old series would
+      // schedule a repaint on a disposed canvas → "Object is disposed". Only clean up a live chart.
+      if (candleRef.current !== cs) return;
+      created.forEach((pl) => cs.removePriceLine(pl));
+      cs.setMarkers([]);
+    };
+  }, [markers, lines, candles, overlays, lower, theme, interval, hasVolume]);
 
   /* ── Live candle updates from Binance kline stream ── */
   useEffect(() => {

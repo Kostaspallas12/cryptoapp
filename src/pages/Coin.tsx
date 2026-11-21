@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { CandleChart, type Lower, type Overlay } from '../components/CandleChart';
+import { CandleChart, type ChartLine, type ChartMarker, type Lower, type Overlay } from '../components/CandleChart';
 import { AlertModal, TxModal, type CoinChoice } from '../components/Forms';
+import { NotesCard } from '../components/NotesCard';
 import { IconArrowLeft, IconBell, IconExternal, IconPlus, IconStar, IconTrash } from '../components/Icons';
 import { CoinImg, Gauge, LivePrice, Pct, RATING_COLOR, RatingBadge, RiskBadge, Seg, Skeleton } from '../components/ui';
 import { HttpError } from '../api/coingecko';
@@ -194,6 +195,34 @@ export function CoinPage() {
   const [modal, setModal] = useState<'alert' | 'tx' | null>(null);
   const [aboutOpen, setAboutOpen] = useState(false);
   const watched = useUser((s) => s.watchlist.includes(id));
+  const allTxs = useUser((s) => s.transactions);
+  const allNotes = useUser((s) => s.notes);
+  const allAlerts = useUser((s) => s.alerts);
+  const [showMine, setShowMine] = useState(true);
+
+  // Memoized so the chart only redraws markers when the user's data actually changes
+  const markers = useMemo<ChartMarker[]>(() => {
+    if (!showMine) return [];
+    const sec = (iso: string) => Math.floor(Date.parse(iso) / 1000);
+    return [
+      ...allTxs.filter((x) => x.coinId === id).map((x) => ({
+        time: sec(x.date),
+        kind: x.type,
+        text: `${x.type === 'buy' ? 'B' : 'S'} ${fmtNumber(x.amount, 4)}`,
+      })),
+      ...allNotes.filter((n) => n.coinId === id).map((n) => ({ time: sec(n.createdAt), kind: n.sentiment, text: '📝' })),
+    ];
+  }, [allTxs, allNotes, id, showMine]);
+
+  const lines = useMemo<ChartLine[]>(() => {
+    if (!showMine) return [];
+    const out: ChartLine[] = allAlerts
+      .filter((a) => a.coinId === id && !a.triggered)
+      .map((a) => ({ price: a.target, color: '#f5a524', title: '🔔' }));
+    const h = holdingsFor(allTxs, id);
+    if (h.amount > 1e-12 && h.avgPrice > 0) out.push({ price: h.avgPrice, color: '#7c8cff', title: 'Avg' });
+    return out;
+  }, [allAlerts, allTxs, id, showMine]);
   const toggleWatch = useUser((s) => s.toggleWatch);
 
   // Wait for the pair map before choosing the candle source, so we don't fetch CoinGecko first.
@@ -272,6 +301,9 @@ export function CoinPage() {
               <Seg value={interval} onChange={setInterval_} options={INTERVALS} />
               <div className="row-wrap">
                 <div className="chips">
+                  <button className={`chip ${showMine ? 'active' : ''}`} style={{ padding: '4px 10px', fontSize: 11.5 }} onClick={() => setShowMine((v) => !v)}>
+                    {t('chart.markers')}
+                  </button>
                   {(['ema20', 'ema50', 'sma200', 'bb'] as Overlay[]).map((o) => (
                     <button key={o} className={`chip ${overlays.includes(o) ? 'active' : ''}`} style={{ padding: '4px 10px', fontSize: 11.5 }} onClick={() => toggleOverlay(o)}>
                       {o === 'bb' ? 'Bollinger' : o.toUpperCase()}
@@ -284,7 +316,7 @@ export function CoinPage() {
             {candlesLoading || !candles ? (
               <div style={{ padding: 14 }}><Skeleton h={560} /></div>
             ) : (
-              <CandleChart candles={candles} pair={pair} interval={interval} overlays={overlays} lower={lower} />
+              <CandleChart candles={candles} markers={markers} lines={lines} pair={pair} interval={interval} overlays={overlays} lower={lower} />
             )}
             {live && <div className="xs faint" style={{ padding: '8px 14px', borderTop: '1px solid var(--border)' }}><span className="dot live" style={{ display: 'inline-block', marginRight: 6 }} />Binance · {pair}</div>}
           </div>
@@ -306,6 +338,8 @@ export function CoinPage() {
 
         <aside className="stack" style={{ gap: 16 }}>
           <PositionCard coinId={id} price={price} />
+
+          <NotesCard coin={{ coinId: id, symbol, name, image }} price={price} />
 
           <div className="card">
             <div className="card-title">{t('coin.range24h')}</div>
