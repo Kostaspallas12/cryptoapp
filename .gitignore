@@ -1,2 +1,10 @@
-js/firebase.js 
-js/api.js 
+# Local config with API keys
+public/js/config.js
+
+# Firebase cache
+.firebase/
+
+# Editor / OS
+.vscode/
+.DS_Store
+Thumbs.db

@@ -2,7 +2,7 @@ const API = {
 
   BASE_COINGECKO: 'https://api.coingecko.com/api/v3',
   BASE_FEAR_GREED: 'https://api.alternative.me/fng/',
-  API_KEY: 'CG-H2PTr61qHthtENQBpZmdNeTv',
+  API_KEY: (window.APP_CONFIG && window.APP_CONFIG.COINGECKO_API_KEY) || '',
 
   cache: {},
   CACHE_TTL: 10 * 60 * 1000,
