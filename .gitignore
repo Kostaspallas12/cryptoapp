@@ -1,5 +1,10 @@
-# Local config with API keys
-public/js/config.js
+# Dependencies & build
+node_modules/
+dist/
+
+# Local env with API keys
+.env.local
+.env.*.local
 
 # Firebase cache
 .firebase/
@@ -8,3 +13,4 @@ public/js/config.js
 .vscode/
 .DS_Store
 Thumbs.db
+*.tsbuildinfo
