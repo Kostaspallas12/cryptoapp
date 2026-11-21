@@ -55,7 +55,8 @@ export function NewsList({ items, compact, hideCoin }: { items: TaggedArticle[];
   return (
     <div className="news-list">
       {items.map((a) => (
-        <NewsItem key={a.id} a={a} compact={compact} hideCoin={hideCoin} />
+        // link is unique after de-duplication; ids from older feeds could collide
+        <NewsItem key={a.link} a={a} compact={compact} hideCoin={hideCoin} />
       ))}
     </div>
   );

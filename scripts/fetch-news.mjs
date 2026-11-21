@@ -4,6 +4,8 @@
    the site reads the result from the `news-data` branch. No dependencies.
    usage: node scripts/fetch-news.mjs > news.json */
 
+import { createHash } from 'node:crypto';
+
 const FEEDS = [
   { source: 'CoinDesk', url: 'https://www.coindesk.com/arc/outboundfeeds/rss/' },
   { source: 'Cointelegraph', url: 'https://cointelegraph.com/rss' },
@@ -97,7 +99,7 @@ const items = all
   })
   .sort((a, b) => b.published.localeCompare(a.published))
   .slice(0, MAX_ITEMS)
-  .map((a) => ({ id: Buffer.from(a.link).toString('base64url').slice(-24), ...a }));
+  .map((a) => ({ id: createHash('sha1').update(a.link).digest('hex').slice(0, 16), ...a }));
 
 if (items.length < 10) {
   console.error(`Only ${items.length} items — refusing to publish a near-empty feed`);

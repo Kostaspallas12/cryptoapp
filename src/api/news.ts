@@ -41,7 +41,9 @@ export async function fetchNews(): Promise<NewsFeed> {
           image: safeUrl(a.image) ?? null,
           categories: Array.isArray(a.categories) ? a.categories.map(String) : [],
         }))
-        .filter((a) => a.link && a.title),
+        .filter((a) => a.link && a.title)
+        // Defensive de-duplication: React keys are the links
+        .filter((a, i, all) => all.findIndex((b) => b.link === a.link) === i),
     };
     try {
       localStorage.setItem(CACHE_KEY, JSON.stringify(feed));

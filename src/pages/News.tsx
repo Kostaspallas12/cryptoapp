@@ -55,7 +55,7 @@ export function NewsPage() {
               ⭐ {t('news.myCoins')}
             </button>
           </div>
-          <div className="chips" style={{ marginBottom: 6 }}>
+          <div className="chips news-sources" style={{ marginBottom: 6 }}>
             <button className={`chip ${!source ? 'active' : ''}`} onClick={() => setSource('')}>{t('news.allSources')}</button>
             {sources.map((s) => (
               <button key={s} className={`chip ${source === s ? 'active' : ''}`} onClick={() => { setSource(s); setLimit(PAGE); }}>{s}</button>
