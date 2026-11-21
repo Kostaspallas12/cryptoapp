@@ -10,6 +10,7 @@ import { useUser } from '../store/user';
 import {
   BrandMark, GoogleLogo, IconBell, IconBook, IconChart, IconCloud, IconLogout, IconMoon, IconSearch, IconStar, IconSun, IconWallet,
 } from './Icons';
+import { ErrorBoundary } from './ErrorBoundary';
 import { SearchPalette } from './SearchPalette';
 import { CoinImg, Pct } from './ui';
 
@@ -100,7 +101,10 @@ export function Layout() {
   const [searchOpen, setSearchOpen] = useState(false);
   const loc = useLocation();
 
-  useEffect(() => window.scrollTo(0, 0), [loc.pathname]);
+  useEffect(() => {
+    // Braces matter: newer browsers return a Promise from scrollTo, which React would treat as a cleanup function
+    window.scrollTo(0, 0);
+  }, [loc.pathname]);
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
@@ -164,7 +168,9 @@ export function Layout() {
 
       <main className="page">
         <div className="container">
-          <Outlet />
+          <ErrorBoundary resetKey={loc.pathname}>
+            <Outlet />
+          </ErrorBoundary>
         </div>
       </main>
 

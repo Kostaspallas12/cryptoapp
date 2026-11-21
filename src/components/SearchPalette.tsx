@@ -29,7 +29,9 @@ export function SearchPalette({ onClose }: { onClose: () => void }) {
   const [remote, setRemote] = useState<SearchHit[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => inputRef.current?.focus(), []);
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
